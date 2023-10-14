@@ -1,5 +1,8 @@
 service: product-service
 frameworkVersion: "3"
+useDotenv: true
+plugins:
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -8,6 +11,8 @@ provider:
   region: eu-west-1
   httpApi:
     cors: true
+  environment:
+    REGION: ${self:provider.region}
 
 functions:
   getProductsList:
@@ -16,10 +21,30 @@ functions:
      - httpApi:
         method: GET
         path: /products
-
+    environment:
+      ProductsTableName: ${env:PRODUCTS_TABLE}
+      StockTableName: ${env:STOCK_TABLE}
   getProductById:
     handler: handlers/getProductById.getProductById
     events:
      - httpApi:
         method: GET
         path: /products/{productId}
+    environment:
+      ProductsTableName: ${env:PRODUCTS_TABLE}
+  createProduct:
+    handler: handlers/createProduct.createProduct
+    events:
+     - httpApi:
+        method: POST
+        path: /products
+    environment:
+      ProductsTableName: ${env:PRODUCTS_TABLE}
+  productsLoadData:
+    handler: productsLoadData.js
+    environment:
+      ProductsTableName: ${env:PRODUCTS_TABLE}
+  stockLoadData:
+    handler: stockLoadData.js
+    environment:
+      StockTableName: ${env:STOCK_TABLE}

@@ -1,25 +1,26 @@
-import { fetchProducts } from '../fetchProducts.js';
+import { docClient } from '../awsDocClient.js';
 
-const findProductById = async (productId) => {
-  const products = await fetchProducts();
-  const product = products.find(product => product.id === productId);
+const query = async (id) => {
+  console.log('query id: ', id);
 
-  if (!product) {
+  const queryResults = await docClient.query({
+    TableName: process.env.ProductsTableName,
+    KeyConditionExpression: 'id = :id',
+    ExpressionAttributeValues: { ':id': id },
+  }).promise();
+
+    if (!queryResults.Items ||  queryResults.Items?.length === 0) {
     throw new Error('Product not found!');
   }
 
-  return product;
+  return queryResults.Items;
 }
 
 export const getProductById = async (event) => {
   const { productId } = event.pathParameters;
 
   try {
-    const foundProduct = await findProductById(productId);
-
-    const product = {
-      [productId]: foundProduct,
-    }
+    const product = await query(productId);
 
     return {
       statusCode: 200,
