@@ -7,11 +7,21 @@ const putItem = async (params) => {
 };
 
 export const createProduct = async (event) => {
+  const parsedBody = JSON.parse(event.body);
+  const { title, description, price } = parsedBody;
+
+  if (!title || !description || !price) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify('Invalid params. Product not created!'),
+    }
+  }
+
   const params = {
     TableName: process.env.ProductsTableName,
     Item: {
-      'id': uuidv4(),
-      'title': 'newItem'
+      id: uuidv4(),
+      ...parsedBody,
     },
   };
 
@@ -24,8 +34,8 @@ export const createProduct = async (event) => {
     };
   } catch(error) {
     return {
-      statusCode: 400,
-      body: JSON.stringify('Invalid params. Product not created!'),
+      statusCode: 500,
+      body: JSON.stringify(error.message),
     }
   }
 }
