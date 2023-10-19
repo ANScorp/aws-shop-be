@@ -43,7 +43,7 @@ export const getProductsList = async (event) => {
     }
   } catch(error) {
     return {
-      statusCode: 404,
+      statusCode: 500,
       body: JSON.stringify(error.message),
     }
   }
