@@ -47,3 +47,22 @@ This monorepo is the bucket for microservices utilized by the shop front-end app
 - in case of 404 error complaining about that Lambda role is not authorized to perform e.g. `dynamodb:Scan` on some resource (table) then here's update needed
     ![IAM Policies](iam-policies.png)
     ![Attach policy](iam-attach-policy.png)
+
+- in case of CORS errors e.g. when PUT to S3 bucket throws `CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status` then bucket's CORS policy modification needed
+    ```
+        [
+            {
+                "AllowedHeaders": [
+                    "*"
+                ],
+                "AllowedMethods": [
+                    "POST",
+                    "GET",
+                    "PUT"
+                ],
+                "AllowedOrigins": [
+                    "*"
+                ]
+            }
+        ]
+    ```
