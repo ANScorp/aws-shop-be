@@ -1,0 +1,19 @@
+{
+  "name": "import-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "awsS3.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "sls deploy",
+    "invoke:local:importProductsFile": "sls invoke local --function importProductsFile --data '{ \"queryStringParameters\": { \"name\": \"test.csv\" } }'",
+    "remove": "sls remove"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1473.0",
+    "csv-parser": "^3.0.0"
+  }
+}

@@ -1,0 +1,47 @@
+service: import-service
+frameworkVersion: '3'
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: eu-west-1
+  httpApi:
+    cors: true
+  environment:
+    REGION: ${self:provider.region}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 's3:ListBucket'
+          Resource: 'arn:aws:s3:::${env:BUCKET}'
+        - Effect: Allow
+          Action:
+            - 's3:*'
+          Resource:
+            - 'arn:aws:s3:::${env:BUCKET}/*'
+
+functions:
+  importProductsFile:
+    handler: handlers/importProductsFile.importProductsFile
+    events:
+     - httpApi:
+        method: GET
+        path: /import
+    environment:
+      BucketName: ${env:BUCKET}
+  importFileParser:
+    handler: handlers/importFileParser.importFileParser
+    events:
+      - s3:
+          bucket: ${env:BUCKET}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded
+            - suffix: .csv
+          existing: true
+    environment:
+      BucketName: ${env:BUCKET}
