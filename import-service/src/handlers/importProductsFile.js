@@ -1,4 +1,4 @@
-import { s3 } from '../awsS3.js';
+import { s3 } from '../aws.js';
 
 export const importProductsFile = async (event) => {
   console.log('importProductsFile event:');
@@ -14,7 +14,7 @@ export const importProductsFile = async (event) => {
 
   const filePath = `uploaded/${name}`;
   const params = {
-    Bucket: process.env.BucketName,
+    Bucket: process.env.BUCKET_NAME,
     Key: filePath,
     ContentType: 'text/csv'
   }
@@ -26,10 +26,10 @@ export const importProductsFile = async (event) => {
       statusCode: 200,
       body: JSON.stringify(signedUrl),
     }
-  } catch(error) {
+  } catch (error) {
     return {
       statusCode: 500,
       body: JSON.stringify(error.message),
     }
   }
-}
+};

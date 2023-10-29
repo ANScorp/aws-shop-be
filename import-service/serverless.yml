@@ -11,37 +11,39 @@ provider:
     cors: true
   environment:
     REGION: ${self:provider.region}
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    QUEUE_NAME: ${env:QUEUE_NAME}
+    SQS_URL: ${env:SQS_URL}
   iam:
     role:
       statements:
         - Effect: Allow
           Action:
             - 's3:ListBucket'
-          Resource: 'arn:aws:s3:::${env:BUCKET}'
+          Resource: 'arn:aws:s3:::${self:provider.environment.BUCKET_NAME}'
         - Effect: Allow
           Action:
             - 's3:*'
           Resource:
-            - 'arn:aws:s3:::${env:BUCKET}/*'
+            - 'arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*'
+        - Effect: Allow
+          Action: 'sqs:*'
+          Resource: 'arn:aws:sqs:eu-west-1:694017690590:${self:provider.environment.QUEUE_NAME}'
 
 functions:
   importProductsFile:
-    handler: handlers/importProductsFile.importProductsFile
+    handler: src/handlers/importProductsFile.importProductsFile
     events:
      - httpApi:
         method: GET
         path: /import
-    environment:
-      BucketName: ${env:BUCKET}
   importFileParser:
-    handler: handlers/importFileParser.importFileParser
+    handler: src/handlers/importFileParser.importFileParser
     events:
       - s3:
-          bucket: ${env:BUCKET}
+          bucket: ${self:provider.environment.BUCKET_NAME}
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploaded
             - suffix: .csv
           existing: true
-    environment:
-      BucketName: ${env:BUCKET}
