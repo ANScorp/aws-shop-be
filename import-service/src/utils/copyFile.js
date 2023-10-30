@@ -1,4 +1,4 @@
-import { s3 } from './awsS3.js';
+import { s3 } from '../aws.js';
 
 export const copyFile = async (filePath) => {
   await s3.copyObject({
@@ -13,4 +13,4 @@ export const copyFile = async (filePath) => {
   }).promise();
 
   console.log(`${filePath.split('/')[1]} is copied!`);
-}
+};

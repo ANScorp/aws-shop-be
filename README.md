@@ -41,6 +41,8 @@ This monorepo is the bucket for microservices utilized by the shop front-end app
 - serverless dotenv plugin https://www.serverless.com/plugins/serverless-dotenv-plugin
 - invoke function https://www.serverless.com/framework/docs/providers/aws/cli-reference/invoke  
     e.g. `sls invoke local --function getProductsList`
+- customize permisions for lambda functions https://www.serverless.com/framework/docs/providers/aws/guide/iam
+- create resources https://www.serverless.com/framework/docs/providers/aws/guide/resources
 - deploy to AWS: `sls deploy`
 
 ## Troubleshooting

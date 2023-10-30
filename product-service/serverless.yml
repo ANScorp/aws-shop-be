@@ -1,5 +1,5 @@
 service: product-service
-frameworkVersion: "3"
+frameworkVersion: '3'
 useDotenv: true
 plugins:
   - serverless-dotenv-plugin
@@ -13,38 +13,89 @@ provider:
     cors: true
   environment:
     REGION: ${self:provider.region}
+    PRODUCTS_TABLE: ${env:PRODUCTS_TABLE}
+    SNS_ENDPOINT: ${env:SNS_ENDPOINT}
+    SQS_URL:
+      Ref: SQSQueue
+    SNS_ARN:
+      Ref: SNSTopic
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 'sqs:*'
+          Resource:
+            - Fn::GetAtt: [SQSQueue, Arn]
+        - Effect: Allow
+          Action: 'sns:*'
+          Resource:
+            Ref: SNSTopic
+
+resources:
+  Resources:
+    SQSQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${env:QUEUE_NAME}
+    SNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${env:TOPIC_NAME}
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: ${env:SNS_ENDPOINT}
+        Protocol: email
+        TopicArn:
+          Ref: SNSTopic
+    SNSSubscriptionWithFilter:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: ${env:SNS_FILTER_ENDPOINT}
+        Protocol: email
+        TopicArn:
+          Ref: SNSTopic
+        FilterPolicy:
+          price:
+            - numeric:
+                - '<='
+                - 3.2
 
 functions:
   getProductsList:
-    handler: handlers/getProductsList.getProductsList
+    handler: src/handlers/getProductsList.getProductsList
     events:
      - httpApi:
         method: GET
         path: /products
     environment:
-      ProductsTableName: ${env:PRODUCTS_TABLE}
       StockTableName: ${env:STOCK_TABLE}
   getProductById:
-    handler: handlers/getProductById.getProductById
+    handler: src/handlers/getProductById.getProductById
     events:
      - httpApi:
         method: GET
         path: /products/{productId}
-    environment:
-      ProductsTableName: ${env:PRODUCTS_TABLE}
   createProduct:
-    handler: handlers/createProduct.createProduct
+    handler: src/handlers/createProduct.createProduct
     events:
      - httpApi:
         method: POST
         path: /products
-    environment:
-      ProductsTableName: ${env:PRODUCTS_TABLE}
+  catalogBatchProcess:
+    handler: src/handlers/catalogBatchProcess.catalogBatchProcess
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - SQSQueue
+              - Arn
   productsLoadData:
-    handler: productsLoadData.js
+    handler: src/productsLoadData.js
     environment:
       ProductsTableName: ${env:PRODUCTS_TABLE}
   stockLoadData:
-    handler: stockLoadData.js
+    handler: src/stockLoadData.js
     environment:
       StockTableName: ${env:STOCK_TABLE}
