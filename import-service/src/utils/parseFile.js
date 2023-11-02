@@ -9,13 +9,16 @@ export const parseFile = (params) => {
     s3Stream
       .pipe(csv())
       .on('data', (data) => {
+        console.log('data: ', data);
         results.push(data);
       })
       .on('error', (error) => {
+        console.log('error: ', error);
         reject(error)
       })
       .on('end', () => {
-      resolve(results);
-    })
+        console.log('end: ', results);
+        resolve(results);
+      })
   });
 };
