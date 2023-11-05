@@ -1,0 +1,14 @@
+{
+  "name": "authorization-service",
+  "version": "1.0.0",
+  "description": "Store authorization-service",
+  "main": "src/handlers/basicAuthorizer.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "sls deploy",
+    "remove": "sls remove"
+  },
+  "author": "",
+  "license": "ISC"
+}

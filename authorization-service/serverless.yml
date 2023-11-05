@@ -1,0 +1,29 @@
+service: authorization-service
+frameworkVersion: '3'
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: eu-west-1
+  httpApi:
+    cors: true
+    authorizers:
+      tokenAuthorizer:
+        type: request
+        functionName: basicAuthorizer
+  environment:
+    REGION: ${self:provider.region}
+    USERNAME: ${env:USERNAME}
+    PASSWORD: ${env:PASSWORD}
+
+functions:
+  basicAuthorizer:
+    handler: src/handlers/basicAuthorizer.basicAuthorizer
+    events:
+      - httpApi:
+          method: GET
+          path: /token
+          authorizer:
+            name: tokenAuthorizer
